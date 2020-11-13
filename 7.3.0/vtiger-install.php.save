@@ -53,7 +53,7 @@ $values = $robot->post(
         'lastname'         => 'Administrator',
         'admin_email'      => 'vtiger@localhost.lan',
         'dateformat'       => 'dd-mm-yyyy',
-        'timezone'         => 'Europe/Amsterdam',
+        'timezone'         => 'Europe/Madrid',
     ],
     ['__vtrftk', 'auth_key', '@text']
 );
@@ -137,7 +137,7 @@ $vtrftk = $robot->post(
         '__vtrftk'      => $vtrftk,
         'currency_name' => 'Euro',
         'lang_name'     => 'en_us',
-        'time_zone'     => 'Europe/Amsterdam',
+        'time_zone'     => 'Europe/Amsterda',
         'date_format'   => 'dd-mm-yyyy',
     ],
     ['__vtrftk']

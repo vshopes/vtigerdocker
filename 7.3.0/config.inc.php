@@ -51,12 +51,12 @@ $HELPDESK_SUPPORT_EMAIL_REPLY_ID = $HELPDESK_SUPPORT_EMAIL_ID;
       db_name
 */
 
-$dbconfig['db_server'] = getenv('MYSQL_HOST') ?: 'localhost';
-$dbconfig['db_port'] = ':'.(getenv('MYSQL_PORT') ?: '3306');
-$dbconfig['db_username'] = getenv('MYSQL_USER') ?: 'root';
-$dbconfig['db_password'] = getenv('MYSQL_PASSWORD') ?: getenv('MYSQL_ROOT_PASSWORD');
-$dbconfig['db_name'] = getenv('MYSQL_DATABASE') ?: 'vtigercrm';
-$dbconfig['db_type'] = getenv('MYSQL_TYPE') ?: 'mysqli';
+$dbconfig['db_server'] = '127.0.0.1';
+$dbconfig['db_port'] = ':3306';
+$dbconfig['db_username'] = 'vtiger';
+$dbconfig['db_password'] = 'vtiger';
+$dbconfig['db_name'] = 'vtiger';
+$dbconfig['db_type'] = 'mysqli';
 $dbconfig['db_status'] = 'true';
 
 // TODO: test if port is empty

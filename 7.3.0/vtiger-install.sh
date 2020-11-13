@@ -15,6 +15,7 @@ if [[ $@ == *'--install-mysql'* ]]; then
     ## image size, keeping all free from unnecessary dependencies.  ##                                     ##
     ## ============================================================ ##
     apt-get update
+    apt-get upgrade -y
     echo "${DATABASE_PACKAGE} mysql-server/root_password password root" | debconf-set-selections
     echo "${DATABASE_PACKAGE} mysql-server/root_password_again password root" | debconf-set-selections
 

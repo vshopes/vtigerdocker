@@ -1,7 +1,7 @@
-FROM php:7.3.12-apache
+FROM php:7.3.24-apache
 LABEL maintainer="Francesco Bianco <info@javanile.org>"
 
-ENV VT_VERSION="7.2.0" \
+ENV VT_VERSION="7.3.0" \
     DATABASE_PACKAGE="mariadb-server-10.3" \
     PATH="/root/.composer/vendor/bin:$PATH"
 
@@ -38,7 +38,8 @@ RUN cd /usr/src/vtiger && \
 COPY vtiger-*.sh /usr/local/bin/
 COPY vtiger-*.php /usr/src/vtiger/
 
-RUN vtiger-install.sh --install-mysql --assert-mysql --dump --remove-mysql && \
+ 
+RUN vtiger-install.sh --install-mysql --assert-mysql --dump && \
     cd /var/www/html/vtlib/Vtiger/ && \
     sed -e 's!realpath(!__realpath__(!' -ri Utils.php Deprecated.php && \
     symvol move /var/www/html /usr/src/vtiger/volume
@@ -54,8 +55,8 @@ WORKDIR /app
 ENV VT_ADMIN_USER="admin" \
     VT_ADMIN_PASSWORD="admin" \
     VT_ADMIN_EMAIL="admin@localhost.lan" \
-    VT_CURRENCY_NAME="USA, Dollars" \
-    MYSQL_HOST="mysql" \
+    VT_CURRENCY_NAME="EUR, Euro" \
+    MYSQL_HOST="localhost" \
     MYSQL_DATABASE="vtiger"
 
 CMD ["vtiger-foreground.sh"]

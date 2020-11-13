@@ -27,13 +27,15 @@ echo "[vtiger] Start web loading..."
 service apache2 start >/dev/null 2>&1
 
 ## store environment variables
+echo "[vtiger] Store enviroment variables..."
 printenv | sed 's/^\(.*\)$/export \1/g' | grep -E '^export MYSQL_|^export VT_' > /run/crond.env
 
 ## import database using environment variables
 cd /usr/src/vtiger
 loading "Waiting for database..."
 echo "[vtiger] Waiting for available database..."
-echo -n "[vtiger] " && mysql-import --do-while vtiger.sql
+##echo -n "[vtiger] " && mysql-import --do-while vtiger.sql
+service mysql start
 #php vtiger-startup.php
 
 ## fill current mounted volume
