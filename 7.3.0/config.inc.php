@@ -51,7 +51,7 @@ $HELPDESK_SUPPORT_EMAIL_REPLY_ID = $HELPDESK_SUPPORT_EMAIL_ID;
       db_name
 */
 
-$dbconfig['db_server'] = getenv('MYSQL_HOST') ?: 'mysql';
+$dbconfig['db_server'] = getenv('MYSQL_HOST') ?: 'localhost';
 $dbconfig['db_port'] = ':'.(getenv('MYSQL_PORT') ?: '3306');
 $dbconfig['db_username'] = getenv('MYSQL_USER') ?: 'root';
 $dbconfig['db_password'] = getenv('MYSQL_PASSWORD') ?: getenv('MYSQL_ROOT_PASSWORD');
