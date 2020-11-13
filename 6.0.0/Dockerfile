@@ -1,8 +1,9 @@
-FROM php:5.6.40-apache
+FROM php:5.6.30-apache
 LABEL maintainer='Francesco Bianco <info@javanile.org>'
 
 ENV VT_VERSION=6.0.0 \
     VT_DOWNLOAD=http://sourceforge.net/projects/vtigercrm/files/vtiger%20CRM%206.0.0/Core%20Product/vtigercrm6.0.0.tar.gz \
+    DATABASE_PACKAGE=mysql-server-5.5 \
     COMPOSER_ALLOW_SUPERUSER=1 \
     PATH=/root/.composer/vendor/bin:$PATH
 
@@ -23,7 +24,7 @@ RUN apt-get update && \
     usermod -u 1000 www-data && groupmod -g 1000 www-data && \
     echo "ServerName localhost" >> /etc/apache2/apache2.conf && \
     curl -o vtiger.tar.gz -sL "$VT_DOWNLOAD" && tar -xzf vtiger.tar.gz && rm vtiger.tar.gz && \
-    rm -fr /var/www/html && mv vtigercrm /var/www/html && \
+    rm -fr /var/www/html && mv "vtigerCRM" /var/www/html && \
     vtiger permissions --fix && \
     a2enmod ssl && a2enmod rewrite && \
     apt-get clean && php composer.phar clearcache && \
@@ -31,7 +32,6 @@ RUN apt-get update && \
 
 COPY develop-install.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/develop-install.sh && develop-install.sh
-
 COPY vtiger-*.sh /usr/local/bin/
 COPY vtiger-*.php /usr/src/vtiger/
 COPY crontab /etc/cron.d/crontab

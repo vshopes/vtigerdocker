@@ -3,6 +3,7 @@ LABEL maintainer='Francesco Bianco <info@javanile.org>'
 
 ENV VT_VERSION=6.0.0-RC \
     VT_DOWNLOAD=http://sourceforge.net/projects/vtigercrm/files/vtiger%20CRM%206.0%20RC/Core%20Product/vtigercrm-6.0.0rc.tar.gz \
+    DATABASE_PACKAGE=mariadb-server-10.1 \
     COMPOSER_ALLOW_SUPERUSER=1 \
     PATH=/root/.composer/vendor/bin:$PATH
 
@@ -23,7 +24,7 @@ RUN apt-get update && \
     usermod -u 1000 www-data && groupmod -g 1000 www-data && \
     echo "ServerName localhost" >> /etc/apache2/apache2.conf && \
     curl -o vtiger.tar.gz -sL "$VT_DOWNLOAD" && tar -xzf vtiger.tar.gz && rm vtiger.tar.gz && \
-    rm -fr /var/www/html && mv vtigercrm /var/www/html && \
+    rm -fr /var/www/html && mv "vtigerCRM" /var/www/html && \
     vtiger permissions --fix && \
     a2enmod ssl && a2enmod rewrite && \
     apt-get clean && php composer.phar clearcache && \
@@ -31,7 +32,6 @@ RUN apt-get update && \
 
 COPY develop-install.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/develop-install.sh && develop-install.sh
-
 COPY vtiger-*.sh /usr/local/bin/
 COPY vtiger-*.php /usr/src/vtiger/
 COPY crontab /etc/cron.d/crontab

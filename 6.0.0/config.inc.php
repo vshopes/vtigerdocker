@@ -1,7 +1,7 @@
 <?php
 /*********************************************************************************
  * The contents of this file are subject to the SugarCRM Public License Version 1.1.2
- * ("License"); You may not use this file except in compliance with the 
+ * ("License"); You may not use this file except in compliance with the
  * License. You may obtain a copy of the License at http://www.sugarcrm.com/SPL
  * Software distributed under the License is distributed on an  "AS IS"  basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
@@ -14,27 +14,27 @@
 ********************************************************************************/
 
 // Adjust error_reporting favourable to deployment.
-version_compare(PHP_VERSION, '5.5.0') <= 0 ? error_reporting(E_WARNING & ~E_NOTICE & ~E_DEPRECATED & E_ERROR) : error_reporting(E_WARNING & ~E_NOTICE & ~E_DEPRECATED  & E_ERROR & ~E_STRICT); // PRODUCTION
+version_compare(PHP_VERSION, '5.5.0') <= 0 ? error_reporting(E_WARNING & ~E_NOTICE & ~E_DEPRECATED & E_ERROR) : error_reporting(E_WARNING & ~E_NOTICE & ~E_DEPRECATED & E_ERROR & ~E_STRICT); // PRODUCTION
 //ini_set('display_errors','on'); version_compare(PHP_VERSION, '5.5.0') <= 0 ? error_reporting(E_WARNING & ~E_NOTICE & ~E_DEPRECATED) : error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT);   // DEBUGGING
 //ini_set('display_errors','on'); error_reporting(E_ALL); // STRICT DEVELOPMENT
 
-if (getenv('VT_DEBUG') && strtolower(getenv('VT_DEBUG')) != 'false' && getenv('VT_DEBUG') != '0') {
+if (getenv('VT_DEBUG') && !in_array(strtolower(getenv('VT_DEBUG')), ['false', '0'])) {
     ini_set('display_errors', 'on');
-    version_compare(PHP_VERSION, '5.5.0') <= 0 ? error_reporting(E_WARNING & ~E_NOTICE & ~E_DEPRECATED) : error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT);
+    error_reporting(E_ALL & ~E_WARNING & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT);
 }
 
-include('vtigerversion.php');
+include 'vtigerversion.php';
 
 // more than 8MB memory needed for graphics
 // memory limit default value = 64M
-ini_set('memory_limit','512M');
+ini_set('memory_limit', '512M');
 
-// show or hide calendar, world clock, calculator, chat and CKEditor 
-// Do NOT remove the quotes if you set these to false! 
+// show or hide calendar, world clock, calculator, chat and CKEditor
+// Do NOT remove the quotes if you set these to false!
 $CALENDAR_DISPLAY = 'true';
 $WORLD_CLOCK_DISPLAY = 'true';
 $CALCULATOR_DISPLAY = 'true';
-$CHAT_DISPLAY = 'true'; 
+$CHAT_DISPLAY = 'true';
 $USE_RTE = 'true';
 
 // helpdesk support email id and support name (Example: 'support@vtiger.com' and 'vtiger support')
@@ -84,12 +84,41 @@ $dbconfigoption['portability'] = 0;
 // ssl default value = false
 $dbconfigoption['ssl'] = false;
 
+// TODO: looking for usage
 $host_name = $dbconfig['db_hostname'];
 
-$site_URL = $_ENV['VT_SITE_URL']?:'http'.(isset($_SERVER['HTTPS'])?'s':'').'://'.$_SERVER['HTTP_HOST'].'/';
+// Update $_SERVER for reverse proxy with public domain
+if (trim(getenv('VT_SITE_URL'))) {
+    $_SERVER['HTTP_PORT'] = parse_url(trim(getenv('VT_SITE_URL')), PHP_URL_PORT);
+    $_SERVER['HTTP_HOST'] = parse_url(trim(getenv('VT_SITE_URL')), PHP_URL_HOST);
+    if (preg_match('/^https/i', trim(getenv('VT_SITE_URL')))) {
+        $_SERVER['HTTPS'] = 'on';
+        $_SERVER['HTTP_HOST'] .= $_SERVER['HTTP_PORT'] && $_SERVER['HTTP_PORT'] != 443 ? ':'.$_SERVER['HTTP_PORT'] : '';
+    } else {
+        $_SERVER['HTTP_HOST'] .= $_SERVER['HTTP_PORT'] && $_SERVER['HTTP_PORT'] != 80 ? ':'.$_SERVER['HTTP_PORT'] : '';
+    }
+}
+
+// Update $site_URL using VT_SITE_URL environment variable
+$site_URL = 'http'.(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 's' : '').'://'.$_SERVER['HTTP_HOST'].'/';
+
+// Store $site_URL on /tmp for system services
+if ($_SERVER['HTTP_HOST']) {
+    $site_URL_file = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'vtiger_site_URL';
+    if (!file_exists($site_URL_file) || filemtime($site_URL_file) + 3600 < time()) {
+        file_put_contents($site_URL_file, $site_URL);
+        $port = parse_url('http://'.$_SERVER['HTTP_HOST'], PHP_URL_PORT);
+        if ($_SERVER['HTTPS'] === 'on' && $port != 443) {
+            file_put_contents(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'https_localhost_proxy', 'tcp-listen:'.$port.',reuseaddr,fork tcp:localhost:443');
+        } elseif ($port != 80) {
+            file_put_contents(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'http_localhost_proxy', 'tcp-listen:'.$port.',reuseaddr,fork tcp:localhost:80');
+        }
+    }
+}
 
 // url for customer portal (Example: http://vtiger.com/portal)
 $PORTAL_URL = $site_URL.'/customerportal';
+
 // root directory path
 $root_directory = __DIR__.'/';
 
@@ -107,18 +136,18 @@ $upload_dir = 'cache/upload/';
 
 // maximum file size for uploaded files in bytes also used when uploading import files
 // upload_maxsize default value = 3000000
-$upload_maxsize = 3145728;//3MB
+$upload_maxsize = 3145728; //3MB
 
 // flag to allow export functionality
-// 'all' to allow anyone to use exports 
-// 'admin' to only allow admins to export 
-// 'none' to block exports completely 
+// 'all' to allow anyone to use exports
+// 'admin' to only allow admins to export
+// 'none' to block exports completely
 // allow_exports default value = all
 $allow_exports = 'all';
 
 // files with one of these extensions will have '.txt' appended to their filename on upload
 // upload_badext default value = php, php3, php4, php5, pl, cgi, py, asp, cfm, js, vbs, html, htm
-$upload_badext = array('php', 'php3', 'php4', 'php5', 'pl', 'cgi', 'py', 'asp', 'cfm', 'js', 'vbs', 'html', 'htm', 'exe', 'bin', 'bat', 'sh', 'dll', 'phps', 'phtml', 'xhtml', 'rb', 'msi', 'jsp', 'shtml', 'sth', 'shtm');
+$upload_badext = ['php', 'php3', 'php4', 'php5', 'pl', 'cgi', 'py', 'asp', 'cfm', 'js', 'vbs', 'html', 'htm', 'exe', 'bin', 'bat', 'sh', 'dll', 'phps', 'phtml', 'xhtml', 'rb', 'msi', 'jsp', 'shtml', 'sth', 'shtm'];
 
 // full path to include directory including the trailing slash
 // includeDirectory default value = $root_directory..'include/
@@ -201,12 +230,13 @@ $php_max_execution_time = 0;
 // Set the default timezone as per your preference
 $default_timezone = 'UTC';
 
-/** If timezone is configured, try to set it */
+/* If timezone is configured, try to set it */
 if (isset($default_timezone) && function_exists('date_default_timezone_set')) {
     @date_default_timezone_set($default_timezone);
 }
 
-//Set the default layout 
+//Set the default layout
 $default_layout = 'v7';
 
 include_once 'config.security.php';
+require_once '/usr/src/vtiger/vtiger-functions.php';
